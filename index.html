@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="RZ Tracker" />
+<title>RZ's Life Tracker</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: Inter, system-ui, -apple-system, sans-serif; background: #fff; }
+  ::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+const e = React.createElement;
+const { useState, useEffect, useRef } = React;
+
+const MONTHS = ["Foundation", "Building", "Breakthrough", "Mastery"];
+
+const EXERCISES = {
+  Monday: {
+    1: [{ name: "Assisted Pull-ups", sets: "3x5", note: "Focus on form" }, { name: "Negative Pull-ups", sets: "3x3", note: "5s down" }, { name: "Kettlebell Row", sets: "3x10" }, { name: "Push-ups", sets: "3x10" }],
+    2: [{ name: "Assisted Pull-ups", sets: "3x8", note: "Reduce assistance" }, { name: "Negative Pull-ups", sets: "3x5", note: "5s down" }, { name: "Kettlebell Row", sets: "3x12" }, { name: "Decline Push-ups", sets: "3x12" }],
+    3: [{ name: "Unassisted Pull-ups", sets: "3x3-5", note: "First unassisted" }, { name: "Negative Pull-ups", sets: "3x5", note: "7s down" }, { name: "Kettlebell Row", sets: "4x10" }, { name: "Archer Push-ups", sets: "3x8" }],
+    4: [{ name: "Pull-ups", sets: "4x6-8" }, { name: "L-sit Pull-ups", sets: "3x3" }, { name: "Kettlebell Row", sets: "4x12" }, { name: "One-arm Push-up Negatives", sets: "3x5" }],
+  },
+  Tuesday: {
+    1: [{ name: "Goblet Squat", sets: "3x12" }, { name: "KB Swing", sets: "3x15" }, { name: "Reverse Lunge", sets: "3x10 each" }, { name: "Mini Stepper", sets: "15 min" }],
+    2: [{ name: "Goblet Squat", sets: "4x12" }, { name: "KB Swing", sets: "4x15" }, { name: "Walking Lunge", sets: "3x12 each" }, { name: "Mini Stepper", sets: "20 min" }],
+    3: [{ name: "KB Front Squat", sets: "4x10" }, { name: "KB Swing", sets: "4x20" }, { name: "Single-leg Deadlift", sets: "3x8 each" }, { name: "Mini Stepper", sets: "20 min" }],
+    4: [{ name: "KB Front Squat", sets: "4x12" }, { name: "KB Swing", sets: "5x20" }, { name: "Bulgarian Split Squat", sets: "4x10 each" }, { name: "Mini Stepper", sets: "25 min" }],
+  },
+  Wednesday: {
+    1: [{ name: "Assisted Pull-ups", sets: "3x6", note: "Different grip" }, { name: "Hanging Knee Raises", sets: "3x10" }, { name: "Plank", sets: "3x30s" }, { name: "Dead Bug", sets: "3x10" }],
+    2: [{ name: "Chin-ups (Assisted)", sets: "3x8" }, { name: "Hanging Leg Raises", sets: "3x10" }, { name: "Plank", sets: "3x45s" }, { name: "Hollow Hold", sets: "3x20s" }],
+    3: [{ name: "Chin-ups", sets: "3x5", note: "Unassisted" }, { name: "Hanging Leg Raises", sets: "4x12" }, { name: "Plank", sets: "3x60s" }, { name: "Dragon Flag Negatives", sets: "3x5" }],
+    4: [{ name: "Weighted Chin-ups", sets: "3x5" }, { name: "L-sit Holds", sets: "3x15s" }, { name: "Plank", sets: "3x90s" }, { name: "Dragon Flag", sets: "3x5" }],
+  },
+  Thursday: null,
+  Friday: {
+    1: [{ name: "KB Overhead Press", sets: "3x10" }, { name: "KB Floor Press", sets: "3x12" }, { name: "KB Clean", sets: "3x8 each" }, { name: "Turkish Get-up", sets: "2x3 each" }],
+    2: [{ name: "KB Overhead Press", sets: "4x10" }, { name: "KB Floor Press", sets: "4x12" }, { name: "KB Clean & Press", sets: "3x8 each" }, { name: "Turkish Get-up", sets: "3x3 each" }],
+    3: [{ name: "KB Snatch", sets: "3x8 each" }, { name: "KB Floor Press", sets: "4x10" }, { name: "KB Clean & Press", sets: "4x8 each" }, { name: "Turkish Get-up", sets: "3x5 each" }],
+    4: [{ name: "KB Snatch", sets: "4x10 each" }, { name: "KB Floor Press", sets: "4x12" }, { name: "KB Clean & Press", sets: "4x10 each" }, { name: "Turkish Get-up", sets: "3x5 each" }],
+  },
+  Saturday: {
+    1: [{ name: "Assisted Pull-ups Max", sets: "4 sets AMRAP" }, { name: "Negative Pull-ups", sets: "5x3", note: "10s down" }, { name: "KB Windmill", sets: "3x8 each" }, { name: "Farmer Carry", sets: "3x30m" }],
+    2: [{ name: "Pull-up Challenge", sets: "5 sets AMRAP" }, { name: "Negative Pull-ups", sets: "5x5", note: "10s down" }, { name: "KB Windmill", sets: "3x10 each" }, { name: "Farmer Carry", sets: "3x40m" }],
+    3: [{ name: "Pull-up Max Test", sets: "3 sets to failure" }, { name: "Typewriter Pull-ups", sets: "3x5" }, { name: "KB Windmill", sets: "4x10 each" }, { name: "Farmer Carry", sets: "4x40m" }],
+    4: [{ name: "Weighted Pull-ups", sets: "4x5" }, { name: "One-arm Pull-up Negatives", sets: "3x3 each" }, { name: "KB Windmill", sets: "4x12 each" }, { name: "Farmer Carry", sets: "4x50m" }],
+  },
+  Sunday: null,
+};
+
+const MEALS = {
+  weekday: [
+    { time: "Breakfast", desc: "High-protein \u2014 eggs, Greek yogurt, or protein shake" },
+    { time: "Lunch", desc: "Protein + veg + complex carb. Aim 40g protein" },
+    { time: "Snack", desc: "Greek yogurt or protein shake + handful nuts" },
+    { time: "Dinner", desc: "Lean protein 150-200g + large salad or steamed veg + small rice/sweet potato" },
+  ],
+  weekend: [
+    { time: "Breakfast", desc: "Whole Foods: egg bites + fruit + Greek yogurt" },
+    { time: "Lunch", desc: "Hot bar: 1/3 protein + 1/4 carb + rest veg" },
+    { time: "Snack", desc: "Protein bar or nuts from bulk section" },
+    { time: "Dinner", desc: "Protein first, sauce on side, swap fries for salad" },
+  ],
+};
+
+const PRE = [
+  { name: "Arm Circles", dur: "30s each", q: "arm circles dynamic stretch" },
+  { name: "Shoulder Pass-throughs", dur: "10 reps", q: "shoulder pass through stretch" },
+  { name: "Hip Circles", dur: "30s each", q: "hip circles warm up" },
+  { name: "Leg Swings Forward", dur: "10 each", q: "leg swings forward dynamic stretch" },
+  { name: "Leg Swings Lateral", dur: "10 each", q: "leg swings lateral dynamic stretch" },
+  { name: "Cat-Cow", dur: "10 reps", q: "cat cow stretch" },
+  { name: "World's Greatest Stretch", dur: "5 each side", q: "worlds greatest stretch" },
+];
+
+const POST = [
+  { name: "Lat Stretch", dur: "30s each", q: "lat stretch doorway" },
+  { name: "Cross-body Shoulder", dur: "30s each", q: "cross body shoulder stretch" },
+  { name: "Chest Doorway Stretch", dur: "30s each", q: "chest doorway stretch" },
+  { name: "Hip Flexor Stretch", dur: "30s each", q: "kneeling hip flexor stretch" },
+  { name: "Hamstring Stretch", dur: "30s each", q: "standing hamstring stretch" },
+  { name: "Pigeon Pose", dur: "60s each", q: "pigeon pose hip stretch" },
+  { name: "Child's Pose", dur: "60s", q: "childs pose stretch" },
+  { name: "Thoracic Rotation", dur: "30s each", q: "thoracic rotation stretch" },
+];
+
+const SCHED = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const KEY = "rz-tracker-v1";
+
+function todayNoon() { var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate(), 12); }
+function dateToStr(d) { return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function strToNoon(s) { var p = s.split("-").map(Number); return new Date(p[0], p[1]-1, p[2], 12); }
+
+function App() {
+  var today = dateToStr(new Date());
+  var _startDate = useState(today), startDate = _startDate[0], setStartDate = _startDate[1];
+  var _sel = useState(0), sel = _sel[0], setSel = _sel[1];
+  var _checks = useState({}), checks = _checks[0], setChecks = _checks[1];
+  var _skips = useState([]), skips = _skips[0], setSkips = _skips[1];
+  var _showStats = useState(false), showStats = _showStats[0], setShowStats = _showStats[1];
+  var _showSettings = useState(false), showSettings = _showSettings[0], setShowSettings = _showSettings[1];
+  var _expandPre = useState(false), expandPre = _expandPre[0], setExpandPre = _expandPre[1];
+  var _expandPost = useState(false), expandPost = _expandPost[0], setExpandPost = _expandPost[1];
+  var _inputDate = useState(today), inputDate = _inputDate[0], setInputDate = _inputDate[1];
+  var stripRef = useRef(null);
+
+  function getProgramDay(sd) { return Math.floor((todayNoon() - strToNoon(sd)) / 86400000); }
+  function getDateForDay(i) { return new Date(strToNoon(startDate).getTime() + i * 86400000); }
+  function scrollTo(i) { if (stripRef.current) { var el = stripRef.current.querySelector('[data-day="'+i+'"]'); if (el) el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); } }
+  function persist(sd, ch, sk) { try { localStorage.setItem(KEY, JSON.stringify({ startDate: sd, checks: ch, skips: sk })); } catch(e) {} }
+
+  useEffect(function() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var d = JSON.parse(raw);
+        var sd = d.startDate || today;
+        setStartDate(sd); setInputDate(sd);
+        setChecks(d.checks || {}); setSkips(d.skips || []);
+        var t = Math.max(0, Math.min(111, getProgramDay(sd)));
+        setSel(t);
+        setTimeout(function() { scrollTo(t); }, 120);
+      }
+    } catch(err) {}
+  }, []);
+
+  function toggle(dk, item) {
+    var k = dk+":"+item;
+    var nc = Object.assign({}, checks);
+    nc[k] = !nc[k];
+    setChecks(nc);
+    persist(startDate, nc, skips);
+  }
+  function chk(dk, item) { return !!checks[dk+":"+item]; }
+  function skipDay(i) {
+    var ns = skips.indexOf(i) >= 0 ? skips.filter(function(s){return s!==i;}) : skips.concat([i]);
+    setSkips(ns);
+    persist(startDate, checks, ns);
+  }
+  function applySettings() {
+    if (!inputDate) return;
+    setStartDate(inputDate); setChecks({}); setSkips([]);
+    persist(inputDate, {}, []);
+    var t = Math.max(0, Math.min(111, getProgramDay(inputDate)));
+    setSel(t); setShowSettings(false);
+    setTimeout(function() { scrollTo(t); }, 120);
+  }
+  function doExport() {
+    var data = btoa(JSON.stringify({ startDate: startDate, checks: checks, skips: skips }));
+    navigator.clipboard.writeText(data).then(function() { alert("Copied! Paste in new version to restore."); }).catch(function() { alert("Copy failed."); });
+  }
+  function doImport() {
+    var input = prompt("Paste export code:");
+    if (!input) return;
+    try {
+      var d = JSON.parse(atob(input.trim()));
+      var sd = d.startDate || today;
+      setStartDate(sd); setInputDate(sd); setChecks(d.checks||{}); setSkips(d.skips||[]);
+      persist(sd, d.checks||{}, d.skips||[]);
+      var t = Math.max(0, Math.min(111, getProgramDay(sd)));
+      setSel(t); setTimeout(function(){scrollTo(t);},120);
+    } catch(err) { alert("Invalid code."); }
+  }
+
+  var safe = Math.max(0, Math.min(111, sel));
+  var isSkipped = skips.indexOf(safe) >= 0;
+  var skipsBeforeSafe = skips.filter(function(s){return s < safe;}).length;
+  var progIdx = isSkipped ? -1 : safe - skipsBeforeSafe;
+  var weekday = progIdx >= 0 ? SCHED[progIdx % 7] : "Sunday";
+  var month = Math.min(4, Math.max(1, Math.floor((progIdx >= 0 ? progIdx : 0) / 28) + 1));
+  var exs = progIdx >= 0 ? EXERCISES[weekday] : null;
+  var exercises = exs ? (exs[month] || exs[1]) : [];
+  var calDay = getDateForDay(safe);
+  var isWeekend = calDay.getDay() === 0 || calDay.getDay() === 6;
+  var meals = isWeekend ? MEALS.weekend : MEALS.weekday;
+  var tn = Math.max(0, Math.min(111, getProgramDay(startDate)));
+  var dk = "day"+safe;
+  var hasWorkout = !isSkipped && exs !== null;
+
+  var dailyItems = ["water","sunshine","sleep"].concat(meals.map(function(m){return "meal:"+m.time;}));
+  if (hasWorkout) dailyItems = dailyItems.concat(exercises.map(function(ex){return "ex:"+ex.name;})).concat(["pre-stretch","post-stretch"]);
+  var dailyDone = dailyItems.filter(function(i){return chk(dk,i);}).length;
+  var dailyPct = dailyItems.length ? Math.round(dailyDone/dailyItems.length*100) : 0;
+  var totalChecked = 0;
+  Object.keys(checks).forEach(function(k){ if(checks[k]) totalChecked++; });
+  var overallPct = Math.min(100, Math.round(totalChecked / Math.max(1, 112*8) * 100));
+
+  // Row component
+  function Row(props) {
+    return e("div", {
+      style: {display:"flex",alignItems:"flex-start",gap:10,padding:"6px 16px",cursor:"pointer",opacity:props.done?0.4:1},
+      onClick: props.onClick
+    },
+      e("div", {style:{width:9,height:9,border:"0.5px solid #444",marginTop:2,flexShrink:0,background:props.done?"#111":"transparent"}}),
+      props.children
+    );
+  }
+
+  return e("div", {style:{fontFamily:"Inter,system-ui,sans-serif",background:"#fff",minHeight:"100vh",color:"#111",maxWidth:480,margin:"0 auto",fontSize:13}},
+
+    // Header
+    e("div", {style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px 10px",borderBottom:"0.5px solid #ddd"}},
+      e("div", null,
+        e("div", {style:{fontSize:12,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase"}}, "RZ's Life Tracker"),
+        e("div", {style:{fontSize:10,color:"#bbb",marginTop:2}}, MONTHS[month-1]+" \u00b7 Month "+month+" of 4")
+      ),
+      e("div", {style:{display:"flex",alignItems:"center",gap:14}},
+        e("div", {style:{cursor:"pointer",textAlign:"center"},onClick:function(){setShowStats(!showStats);setShowSettings(false);}},
+          e("div", {style:{fontSize:13,fontWeight:700}}, overallPct+"%"),
+          e("div", {style:{fontSize:9,color:"#aaa",textTransform:"uppercase",letterSpacing:"0.06em"}}, "overall")
+        ),
+        e("button", {style:{fontSize:10,background:"none",border:"0.5px solid #ccc",padding:"4px 8px",cursor:"pointer"},onClick:function(){setShowSettings(!showSettings);setShowStats(false);setInputDate(startDate);}}, "settings")
+      )
+    ),
+
+    // Settings panel
+    showSettings && e("div", {style:{padding:"10px 16px 14px",borderBottom:"0.5px solid #eee",background:"#fafafa"}},
+      e("div", {style:{fontSize:9,textTransform:"uppercase",letterSpacing:"0.06em",color:"#999",marginBottom:6}}, "Program start date"),
+      e("div", {style:{display:"flex",gap:8,alignItems:"center",marginBottom:8}},
+        e("input", {type:"date",value:inputDate,onChange:function(ev){setInputDate(ev.target.value);},style:{fontSize:12,border:"0.5px solid #ccc",padding:"5px 8px",background:"#fff",flex:1,outline:"none"}}),
+        e("button", {style:{fontSize:10,border:"0.5px solid #333",padding:"5px 12px",background:"#111",color:"#fff",cursor:"pointer"},onClick:applySettings}, "set & reset")
+      ),
+      e("div", {style:{fontSize:10,color:"#aaa",marginBottom:10}}, "Today is "+new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})+" \u00b7 Day "+Math.max(1,getProgramDay(startDate)+1)+" of 112"),
+      e("div", {style:{display:"flex",gap:8}},
+        e("button", {style:{fontSize:10,border:"0.5px solid #ccc",padding:"4px 10px",background:"none",cursor:"pointer"},onClick:doExport}, "export data"),
+        e("button", {style:{fontSize:10,border:"0.5px solid #ccc",padding:"4px 10px",background:"none",cursor:"pointer"},onClick:doImport}, "import data")
+      )
+    ),
+
+    // Stats panel
+    showStats && e("div", {style:{padding:"10px 16px 14px",borderBottom:"0.5px solid #eee",background:"#fafafa"}},
+      e("div", {style:{fontSize:9,textTransform:"uppercase",letterSpacing:"0.06em",color:"#999",marginBottom:10}}, "4-Month Progress"),
+      [1,2,3,4].map(function(m) {
+        var done=0,total=0;
+        for(var d=(m-1)*28;d<m*28;d++){
+          var pi=skips.indexOf(d)>=0?-1:d-skips.filter(function(s){return s<d;}).length;
+          var wd=pi>=0?SCHED[pi%7]:"Sunday";
+          var ex=pi>=0?EXERCISES[wd]:null;
+          var exList=ex?(ex[m]||ex[1]):[];
+          total+=3+4+(ex?exList.length+2:0);
+          Object.keys(checks).forEach(function(k){if(k.indexOf("day"+d+":")=== 0&&checks[k])done++;});
+        }
+        var pct=total?Math.round(done/total*100):0;
+        return e("div", {key:m,style:{display:"flex",alignItems:"center",gap:8,marginBottom:7}},
+          e("div", {style:{fontSize:10,color:"#888",width:56,textTransform:"uppercase",letterSpacing:"0.04em"}}, "Month "+m),
+          e("div", {style:{flex:1,height:1,background:"#e0e0e0",position:"relative"}},
+            e("div", {style:{position:"absolute",top:0,left:0,height:"100%",background:"#111",width:pct+"%"}})
+          ),
+          e("div", {style:{fontSize:10,color:"#555",width:30,textAlign:"right"}}, pct+"%")
+        );
+      })
+    ),
+
+    // Day strip
+    e("div", {style:{display:"flex",overflowX:"auto",padding:"6px 12px",gap:2,borderBottom:"0.5px solid #eee",scrollbarWidth:"none"},ref:stripRef},
+      Array.from({length:112}, function(_,i) {
+        var d = getDateForDay(i);
+        var lbl = d.toLocaleDateString("en-US",{month:"numeric",day:"numeric"});
+        var isSelected = i === safe;
+        var isToday = i === tn;
+        var isSkip = skips.indexOf(i) >= 0;
+        return e("button", {
+          key:i, "data-day":i,
+          onClick:function(){setSel(i);scrollTo(i);},
+          style:{flexShrink:0,width:34,padding:"4px 0",background:"none",border:"none",cursor:"pointer",textAlign:"center",
+            borderBottom:isSelected?"1.5px solid #111":isToday?"1.5px dotted #999":"1.5px solid transparent",
+            fontWeight:isSelected?700:400,color:isSelected?"#111":"#888",opacity:isSkip?0.35:1}
+        },
+          e("span", {style:{fontSize:11,display:"block",textDecoration:isSkip?"line-through":"none"}}, i+1),
+          e("span", {style:{fontSize:8,color:"#bbb",display:"block",marginTop:1}}, lbl)
+        );
+      })
+    ),
+
+    // Today jump
+    safe !== tn && tn >= 0 && tn <= 111 && e("div", {style:{textAlign:"center",padding:"4px 0 2px",borderBottom:"0.5px solid #eee"}},
+      e("button", {style:{fontSize:10,color:"#888",textDecoration:"underline",cursor:"pointer",background:"none",border:"none"},onClick:function(){setSel(tn);setTimeout(function(){scrollTo(tn);},50);}}, "today is day "+(tn+1))
+    ),
+
+    // Day header
+    e("div", {style:{padding:"10px 16px 8px",borderBottom:"0.5px solid #eee"}},
+      e("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
+        e("div", {style:{fontSize:14,fontWeight:700,display:"flex",alignItems:"center",gap:8}},
+          "Day "+(safe+1),
+          safe===tn && e("span", {style:{fontSize:9,color:"#888",borderBottom:"0.5px solid #aaa"}}, "today")
+        ),
+        e("button", {style:{fontSize:10,color:"#999",textDecoration:"underline",background:"none",border:"none",cursor:"pointer"},onClick:function(){skipDay(safe);}}, isSkipped?"undo postpone":"postpone")
+      ),
+      e("div", {style:{fontSize:10,color:"#aaa",marginTop:2}},
+        calDay.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}) + (hasWorkout?" \u00b7 "+weekday:" \u00b7 Rest")
+      ),
+      e("div", {style:{marginTop:8}},
+        e("div", {style:{height:1,background:"#eee"}},
+          e("div", {style:{height:"100%",background:"#111",width:dailyPct+"%",transition:"width 0.4s"}})
+        ),
+        e("div", {style:{fontSize:9,color:"#bbb",marginTop:2}}, dailyPct+"% complete today")
+      )
+    ),
+
+    // Habits
+    e("div", {style:{borderBottom:"0.5px solid #eee"}},
+      e("div", {style:{padding:"9px 16px 7px"}},
+        e("div", {style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}, "High ROI Habits")
+      ),
+      [{k:"water",l:"2L+ water"},{k:"sunshine",l:"15 min sunshine"},{k:"sleep",l:"7+ hours sleep"}].map(function(h) {
+        var done = chk(dk,h.k);
+        return e(Row, {key:h.k,done:done,onClick:function(){toggle(dk,h.k);}},
+          e("div", {style:{fontSize:12,textDecoration:done?"line-through":"none",color:done?"#bbb":"#111"}}, h.l)
+        );
+      })
+    ),
+
+    // Workout section
+    isSkipped
+      ? e("div", {style:{padding:"24px 16px",fontSize:12,color:"#aaa",textAlign:"center",fontStyle:"italic"}}, "Postponed \u2014 workout shifted forward.")
+      : exs === null
+        ? e("div", {style:{padding:"24px 16px",fontSize:12,color:"#aaa",textAlign:"center",fontStyle:"italic"}}, "Rest day \u2014 active recovery.")
+        : e("div", {style:{borderBottom:"0.5px solid #eee"}},
+            e("div", {style:{padding:"9px 16px 7px"}},
+              e("div", {style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}, "Workout")
+            ),
+            // Pre-stretch
+            e("div", {style:{borderTop:"0.5px solid #f2f2f2"}},
+              e("div", {style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 16px 7px",cursor:"pointer"},onClick:function(){setExpandPre(!expandPre);}},
+                e("div", {style:{fontSize:10,color:"#888",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.06em"}}, "Pre-workout stretches"),
+                e("button", {style:{fontSize:10,color:"#aaa",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}, expandPre?"collapse":"expand")
+              ),
+              expandPre && PRE.map(function(st) {
+                return e("div", {key:st.name,style:{display:"flex",alignItems:"center",padding:"4px 16px 4px 26px",gap:8}},
+                  e("div", {style:{flex:1,fontSize:11,color:"#666"}}, st.name),
+                  e("div", {style:{fontSize:10,color:"#bbb"}}, st.dur),
+                  e("button", {style:{fontSize:10,color:"#aaa",textDecoration:"underline",background:"none",border:"none",cursor:"pointer",paddingLeft:6},onClick:function(ev){ev.stopPropagation();window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(st.q),"_blank");}}, "watch")
+                );
+              }),
+              e(Row, {done:chk(dk,"pre-stretch"),onClick:function(){toggle(dk,"pre-stretch");}},
+                e("div", {style:{fontSize:12,textDecoration:chk(dk,"pre-stretch")?"line-through":"none",color:chk(dk,"pre-stretch")?"#bbb":"#111"}}, "Pre-stretch done")
+              )
+            ),
+            // Exercises
+            exercises.map(function(ex) {
+              var done = chk(dk,"ex:"+ex.name);
+              return e(Row, {key:ex.name,done:done,onClick:function(){toggle(dk,"ex:"+ex.name);}},
+                e("div", {style:{flex:1}},
+                  e("div", {style:{fontSize:12,textDecoration:done?"line-through":"none",color:done?"#bbb":"#111"}}, ex.name),
+                  ex.note && e("div", {style:{fontSize:10,color:"#bbb",marginTop:1}}, ex.note)
+                ),
+                e("div", {style:{fontSize:10,color:"#888",flexShrink:0}}, ex.sets),
+                e("button", {style:{fontSize:10,color:"#aaa",textDecoration:"underline",background:"none",border:"none",cursor:"pointer",paddingLeft:6},onClick:function(ev){ev.stopPropagation();window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(ex.name+" exercise how to"),"_blank");}}, "watch")
+              );
+            }),
+            // Post-stretch
+            e("div", {style:{borderTop:"0.5px solid #f2f2f2"}},
+              e("div", {style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 16px 7px",cursor:"pointer"},onClick:function(){setExpandPost(!expandPost);}},
+                e("div", {style:{fontSize:10,color:"#888",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.06em"}}, "Post-workout stretches"),
+                e("button", {style:{fontSize:10,color:"#aaa",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}, expandPost?"collapse":"expand")
+              ),
+              expandPost && POST.map(function(st) {
+                return e("div", {key:st.name,style:{display:"flex",alignItems:"center",padding:"4px 16px 4px 26px",gap:8}},
+                  e("div", {style:{flex:1,fontSize:11,color:"#666"}}, st.name),
+                  e("div", {style:{fontSize:10,color:"#bbb"}}, st.dur),
+                  e("button", {style:{fontSize:10,color:"#aaa",textDecoration:"underline",background:"none",border:"none",cursor:"pointer",paddingLeft:6},onClick:function(ev){ev.stopPropagation();window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(st.q),"_blank");}}, "watch")
+                );
+              }),
+              e(Row, {done:chk(dk,"post-stretch"),onClick:function(){toggle(dk,"post-stretch");}},
+                e("div", {style:{fontSize:12,textDecoration:chk(dk,"post-stretch")?"line-through":"none",color:chk(dk,"post-stretch")?"#bbb":"#111"}}, "Post-stretch done")
+              )
+            )
+          ),
+
+    // Meals
+    e("div", {style:{borderBottom:"0.5px solid #eee"}},
+      e("div", {style:{padding:"9px 16px 7px"}},
+        e("div", {style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}, "Meals \u00b7 "+(isWeekend?"Weekend (Whole Foods)":"Weekday"))
+      ),
+      meals.map(function(m) {
+        var done = chk(dk,"meal:"+m.time);
+        return e(Row, {key:m.time,done:done,onClick:function(){toggle(dk,"meal:"+m.time);}},
+          e("div", {style:{flex:1}},
+            e("div", {style:{fontSize:12,fontWeight:600,textDecoration:done?"line-through":"none",color:done?"#bbb":"#111"}}, m.time),
+            e("div", {style:{fontSize:10,color:"#bbb",marginTop:1}}, m.desc)
+          )
+        );
+      })
+    ),
+
+    e("div", {style:{height:48}})
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(e(App));
+</script>
+</body>
+</html>
