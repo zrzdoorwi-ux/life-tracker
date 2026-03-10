@@ -4,12 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RZ Tracker" />
 <title>RZ's Life Tracker</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { font-family: Inter, system-ui, -apple-system, sans-serif; background: #fff; }
+  body { font-family: Inter, system-ui, -apple-system, sans-serif; background: #111; color: #eee; }
   ::-webkit-scrollbar { display: none; }
 </style>
 </head>
@@ -201,15 +201,15 @@ function App() {
       style: {display:"flex",alignItems:"flex-start",gap:10,padding:"6px 16px",cursor:"pointer",opacity:props.done?0.4:1},
       onClick: props.onClick
     },
-      e("div", {style:{width:9,height:9,border:"0.5px solid #444",marginTop:2,flexShrink:0,background:props.done?"#111":"transparent"}}),
+      e("div", {style:{width:9,height:9,border:"0.5px solid #888",marginTop:2,flexShrink:0,background:props.done?"#eee":"transparent"}}),
       props.children
     );
   }
 
-  return e("div", {style:{fontFamily:"Inter,system-ui,sans-serif",background:"#fff",minHeight:"100vh",color:"#111",maxWidth:480,margin:"0 auto",fontSize:13}},
+  return e("div", {style:{fontFamily:"Inter,system-ui,sans-serif",background:"#111",minHeight:"100vh",color:"#eee",maxWidth:480,margin:"0 auto",fontSize:13}},
 
     // Header
-    e("div", {style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px 10px",borderBottom:"0.5px solid #ddd"}},
+    e("div", {style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px 10px",borderBottom:"0.5px solid #333"}},
       e("div", null,
         e("div", {style:{fontSize:12,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase"}}, "RZ's Life Tracker"),
         e("div", {style:{fontSize:10,color:"#bbb",marginTop:2}}, MONTHS[month-1]+" \u00b7 Month "+month+" of 4")
@@ -219,26 +219,26 @@ function App() {
           e("div", {style:{fontSize:13,fontWeight:700}}, overallPct+"%"),
           e("div", {style:{fontSize:9,color:"#aaa",textTransform:"uppercase",letterSpacing:"0.06em"}}, "overall")
         ),
-        e("button", {style:{fontSize:10,background:"none",border:"0.5px solid #ccc",padding:"4px 8px",cursor:"pointer"},onClick:function(){setShowSettings(!showSettings);setShowStats(false);setInputDate(startDate);}}, "settings")
+        e("button", {style:{fontSize:10,background:"none",border:"0.5px solid #444",padding:"4px 8px",cursor:"pointer"},onClick:function(){setShowSettings(!showSettings);setShowStats(false);setInputDate(startDate);}}, "settings")
       )
     ),
 
     // Settings panel
-    showSettings && e("div", {style:{padding:"10px 16px 14px",borderBottom:"0.5px solid #eee",background:"#fafafa"}},
+    showSettings && e("div", {style:{padding:"10px 16px 14px",borderBottom:"0.5px solid #2a2a2a",background:"#1a1a1a"}},
       e("div", {style:{fontSize:9,textTransform:"uppercase",letterSpacing:"0.06em",color:"#999",marginBottom:6}}, "Program start date"),
       e("div", {style:{display:"flex",gap:8,alignItems:"center",marginBottom:8}},
-        e("input", {type:"date",value:inputDate,onChange:function(ev){setInputDate(ev.target.value);},style:{fontSize:12,border:"0.5px solid #ccc",padding:"5px 8px",background:"#fff",flex:1,outline:"none"}}),
-        e("button", {style:{fontSize:10,border:"0.5px solid #333",padding:"5px 12px",background:"#111",color:"#fff",cursor:"pointer"},onClick:applySettings}, "set & reset")
+        e("input", {type:"date",value:inputDate,onChange:function(ev){setInputDate(ev.target.value);},style:{fontSize:12,border:"0.5px solid #444",padding:"5px 8px",background:"#222",color:"#eee",flex:1,outline:"none"}}),
+        e("button", {style:{fontSize:10,border:"none",padding:"5px 12px",background:"#eee",color:"#111",borderRadius:3,cursor:"pointer"},onClick:applySettings}, "set & reset")
       ),
       e("div", {style:{fontSize:10,color:"#aaa",marginBottom:10}}, "Today is "+new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})+" \u00b7 Day "+Math.max(1,getProgramDay(startDate)+1)+" of 112"),
       e("div", {style:{display:"flex",gap:8}},
-        e("button", {style:{fontSize:10,border:"0.5px solid #ccc",padding:"4px 10px",background:"none",cursor:"pointer"},onClick:doExport}, "export data"),
-        e("button", {style:{fontSize:10,border:"0.5px solid #ccc",padding:"4px 10px",background:"none",cursor:"pointer"},onClick:doImport}, "import data")
+        e("button", {style:{fontSize:10,border:"0.5px solid #444",padding:"4px 10px",background:"none",cursor:"pointer"},onClick:doExport}, "export data"),
+        e("button", {style:{fontSize:10,border:"0.5px solid #444",padding:"4px 10px",background:"none",cursor:"pointer"},onClick:doImport}, "import data")
       )
     ),
 
     // Stats panel
-    showStats && e("div", {style:{padding:"10px 16px 14px",borderBottom:"0.5px solid #eee",background:"#fafafa"}},
+    showStats && e("div", {style:{padding:"10px 16px 14px",borderBottom:"0.5px solid #2a2a2a",background:"#1a1a1a"}},
       e("div", {style:{fontSize:9,textTransform:"uppercase",letterSpacing:"0.06em",color:"#999",marginBottom:10}}, "4-Month Progress"),
       [1,2,3,4].map(function(m) {
         var done=0,total=0;
@@ -253,16 +253,16 @@ function App() {
         var pct=total?Math.round(done/total*100):0;
         return e("div", {key:m,style:{display:"flex",alignItems:"center",gap:8,marginBottom:7}},
           e("div", {style:{fontSize:10,color:"#888",width:56,textTransform:"uppercase",letterSpacing:"0.04em"}}, "Month "+m),
-          e("div", {style:{flex:1,height:1,background:"#e0e0e0",position:"relative"}},
-            e("div", {style:{position:"absolute",top:0,left:0,height:"100%",background:"#111",width:pct+"%"}})
+          e("div", {style:{flex:1,height:1,background:"#333",position:"relative"}},
+            e("div", {style:{position:"absolute",top:0,left:0,height:"100%",background:"#eee",width:pct+"%"}})
           ),
-          e("div", {style:{fontSize:10,color:"#555",width:30,textAlign:"right"}}, pct+"%")
+          e("div", {style:{fontSize:10,color:"#999",width:30,textAlign:"right"}}, pct+"%")
         );
       })
     ),
 
     // Day strip
-    e("div", {style:{display:"flex",overflowX:"auto",padding:"6px 12px",gap:2,borderBottom:"0.5px solid #eee",scrollbarWidth:"none"},ref:stripRef},
+    e("div", {style:{display:"flex",overflowX:"auto",padding:"6px 12px",gap:2,borderBottom:"0.5px solid #2a2a2a",scrollbarWidth:"none"},ref:stripRef},
       Array.from({length:112}, function(_,i) {
         var d = getDateForDay(i);
         var lbl = d.toLocaleDateString("en-US",{month:"numeric",day:"numeric"});
@@ -273,8 +273,8 @@ function App() {
           key:i, "data-day":i,
           onClick:function(){setSel(i);scrollTo(i);},
           style:{flexShrink:0,width:34,padding:"4px 0",background:"none",border:"none",cursor:"pointer",textAlign:"center",
-            borderBottom:isSelected?"1.5px solid #111":isToday?"1.5px dotted #999":"1.5px solid transparent",
-            fontWeight:isSelected?700:400,color:isSelected?"#111":"#888",opacity:isSkip?0.35:1}
+            borderBottom:isSelected?"1.5px solid #eee":isToday?"1.5px dotted #999":"1.5px solid transparent",
+            fontWeight:isSelected?700:400,color:isSelected?"#eee":"#888",opacity:isSkip?0.35:1}
         },
           e("span", {style:{fontSize:11,display:"block",textDecoration:isSkip?"line-through":"none"}}, i+1),
           e("span", {style:{fontSize:8,color:"#bbb",display:"block",marginTop:1}}, lbl)
@@ -283,12 +283,12 @@ function App() {
     ),
 
     // Today jump
-    safe !== tn && tn >= 0 && tn <= 111 && e("div", {style:{textAlign:"center",padding:"4px 0 2px",borderBottom:"0.5px solid #eee"}},
+    safe !== tn && tn >= 0 && tn <= 111 && e("div", {style:{textAlign:"center",padding:"4px 0 2px",borderBottom:"0.5px solid #2a2a2a"}},
       e("button", {style:{fontSize:10,color:"#888",textDecoration:"underline",cursor:"pointer",background:"none",border:"none"},onClick:function(){setSel(tn);setTimeout(function(){scrollTo(tn);},50);}}, "today is day "+(tn+1))
     ),
 
     // Day header
-    e("div", {style:{padding:"10px 16px 8px",borderBottom:"0.5px solid #eee"}},
+    e("div", {style:{padding:"10px 16px 8px",borderBottom:"0.5px solid #2a2a2a"}},
       e("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
         e("div", {style:{fontSize:14,fontWeight:700,display:"flex",alignItems:"center",gap:8}},
           "Day "+(safe+1),
@@ -300,15 +300,15 @@ function App() {
         calDay.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}) + (hasWorkout?" \u00b7 "+weekday:" \u00b7 Rest")
       ),
       e("div", {style:{marginTop:8}},
-        e("div", {style:{height:1,background:"#eee"}},
-          e("div", {style:{height:"100%",background:"#111",width:dailyPct+"%",transition:"width 0.4s"}})
+        e("div", {style:{height:1,background:"#333"}},
+          e("div", {style:{height:"100%",background:"#eee",width:dailyPct+"%",transition:"width 0.4s"}})
         ),
         e("div", {style:{fontSize:9,color:"#bbb",marginTop:2}}, dailyPct+"% complete today")
       )
     ),
 
     // Habits
-    e("div", {style:{borderBottom:"0.5px solid #eee"}},
+    e("div", {style:{borderBottom:"0.5px solid #2a2a2a"}},
       e("div", {style:{padding:"9px 16px 7px"}},
         e("div", {style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}, "High ROI Habits")
       ),
@@ -325,19 +325,19 @@ function App() {
       ? e("div", {style:{padding:"24px 16px",fontSize:12,color:"#aaa",textAlign:"center",fontStyle:"italic"}}, "Postponed \u2014 workout shifted forward.")
       : exs === null
         ? e("div", {style:{padding:"24px 16px",fontSize:12,color:"#aaa",textAlign:"center",fontStyle:"italic"}}, "Rest day \u2014 active recovery.")
-        : e("div", {style:{borderBottom:"0.5px solid #eee"}},
+        : e("div", {style:{borderBottom:"0.5px solid #2a2a2a"}},
             e("div", {style:{padding:"9px 16px 7px"}},
               e("div", {style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}, "Workout")
             ),
             // Pre-stretch
-            e("div", {style:{borderTop:"0.5px solid #f2f2f2"}},
+            e("div", {style:{borderTop:"0.5px solid #2a2a2a"}},
               e("div", {style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 16px 7px",cursor:"pointer"},onClick:function(){setExpandPre(!expandPre);}},
                 e("div", {style:{fontSize:10,color:"#888",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.06em"}}, "Pre-workout stretches"),
                 e("button", {style:{fontSize:10,color:"#aaa",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}, expandPre?"collapse":"expand")
               ),
               expandPre && PRE.map(function(st) {
                 return e("div", {key:st.name,style:{display:"flex",alignItems:"center",padding:"4px 16px 4px 26px",gap:8}},
-                  e("div", {style:{flex:1,fontSize:11,color:"#666"}}, st.name),
+                  e("div", {style:{flex:1,fontSize:11,color:"#aaa"}}, st.name),
                   e("div", {style:{fontSize:10,color:"#bbb"}}, st.dur),
                   e("button", {style:{fontSize:10,color:"#aaa",textDecoration:"underline",background:"none",border:"none",cursor:"pointer",paddingLeft:6},onClick:function(ev){ev.stopPropagation();window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(st.q),"_blank");}}, "watch")
                 );
@@ -359,14 +359,14 @@ function App() {
               );
             }),
             // Post-stretch
-            e("div", {style:{borderTop:"0.5px solid #f2f2f2"}},
+            e("div", {style:{borderTop:"0.5px solid #2a2a2a"}},
               e("div", {style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"9px 16px 7px",cursor:"pointer"},onClick:function(){setExpandPost(!expandPost);}},
                 e("div", {style:{fontSize:10,color:"#888",fontWeight:500,textTransform:"uppercase",letterSpacing:"0.06em"}}, "Post-workout stretches"),
                 e("button", {style:{fontSize:10,color:"#aaa",background:"none",border:"none",cursor:"pointer",textDecoration:"underline"}}, expandPost?"collapse":"expand")
               ),
               expandPost && POST.map(function(st) {
                 return e("div", {key:st.name,style:{display:"flex",alignItems:"center",padding:"4px 16px 4px 26px",gap:8}},
-                  e("div", {style:{flex:1,fontSize:11,color:"#666"}}, st.name),
+                  e("div", {style:{flex:1,fontSize:11,color:"#aaa"}}, st.name),
                   e("div", {style:{fontSize:10,color:"#bbb"}}, st.dur),
                   e("button", {style:{fontSize:10,color:"#aaa",textDecoration:"underline",background:"none",border:"none",cursor:"pointer",paddingLeft:6},onClick:function(ev){ev.stopPropagation();window.open("https://www.youtube.com/results?search_query="+encodeURIComponent(st.q),"_blank");}}, "watch")
                 );
@@ -378,7 +378,7 @@ function App() {
           ),
 
     // Meals
-    e("div", {style:{borderBottom:"0.5px solid #eee"}},
+    e("div", {style:{borderBottom:"0.5px solid #2a2a2a"}},
       e("div", {style:{padding:"9px 16px 7px"}},
         e("div", {style:{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}, "Meals \u00b7 "+(isWeekend?"Weekend (Whole Foods)":"Weekday"))
       ),
