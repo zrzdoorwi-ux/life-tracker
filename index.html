@@ -6,6 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RZ Tracker" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <title>RZ's Life Tracker</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -315,7 +318,7 @@ function App() {
       [{k:"water",l:"2L+ water"},{k:"sunshine",l:"15 min sunshine"},{k:"sleep",l:"7+ hours sleep"}].map(function(h) {
         var done = chk(dk,h.k);
         return e(Row, {key:h.k,done:done,onClick:function(){toggle(dk,h.k);}},
-          e("div", {style:{fontSize:12,textDecoration:done?"line-through":"none",color:done?"#bbb":"#111"}}, h.l)
+          e("div", {style:{fontSize:12,textDecoration:done?"line-through":"none",color:done?"#666":"#eee"}}, h.l)
         );
       })
     ),
@@ -343,7 +346,7 @@ function App() {
                 );
               }),
               e(Row, {done:chk(dk,"pre-stretch"),onClick:function(){toggle(dk,"pre-stretch");}},
-                e("div", {style:{fontSize:12,textDecoration:chk(dk,"pre-stretch")?"line-through":"none",color:chk(dk,"pre-stretch")?"#bbb":"#111"}}, "Pre-stretch done")
+                e("div", {style:{fontSize:12,textDecoration:chk(dk,"pre-stretch")?"line-through":"none",color:chk(dk,"pre-stretch")?"#666":"#eee"}}, "Pre-stretch done")
               )
             ),
             // Exercises
@@ -351,7 +354,7 @@ function App() {
               var done = chk(dk,"ex:"+ex.name);
               return e(Row, {key:ex.name,done:done,onClick:function(){toggle(dk,"ex:"+ex.name);}},
                 e("div", {style:{flex:1}},
-                  e("div", {style:{fontSize:12,textDecoration:done?"line-through":"none",color:done?"#bbb":"#111"}}, ex.name),
+                  e("div", {style:{fontSize:12,textDecoration:done?"line-through":"none",color:done?"#666":"#eee"}}, ex.name),
                   ex.note && e("div", {style:{fontSize:10,color:"#bbb",marginTop:1}}, ex.note)
                 ),
                 e("div", {style:{fontSize:10,color:"#888",flexShrink:0}}, ex.sets),
@@ -372,7 +375,7 @@ function App() {
                 );
               }),
               e(Row, {done:chk(dk,"post-stretch"),onClick:function(){toggle(dk,"post-stretch");}},
-                e("div", {style:{fontSize:12,textDecoration:chk(dk,"post-stretch")?"line-through":"none",color:chk(dk,"post-stretch")?"#bbb":"#111"}}, "Post-stretch done")
+                e("div", {style:{fontSize:12,textDecoration:chk(dk,"post-stretch")?"line-through":"none",color:chk(dk,"post-stretch")?"#666":"#eee"}}, "Post-stretch done")
               )
             )
           ),
@@ -386,7 +389,7 @@ function App() {
         var done = chk(dk,"meal:"+m.time);
         return e(Row, {key:m.time,done:done,onClick:function(){toggle(dk,"meal:"+m.time);}},
           e("div", {style:{flex:1}},
-            e("div", {style:{fontSize:12,fontWeight:600,textDecoration:done?"line-through":"none",color:done?"#bbb":"#111"}}, m.time),
+            e("div", {style:{fontSize:12,fontWeight:600,textDecoration:done?"line-through":"none",color:done?"#666":"#eee"}}, m.time),
             e("div", {style:{fontSize:10,color:"#bbb",marginTop:1}}, m.desc)
           )
         );
